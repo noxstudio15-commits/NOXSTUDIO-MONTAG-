@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<title>NOXSTUDIO MONTAG</title>
+
+<style>
+body{
+  margin:0;
+  font-family:Arial;
+  background:#0b0b0f;
+  color:#fff;
+}
+header{
+  background:#111;
+  padding:15px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+button{
+  background:#6a00ff;
+  border:none;
+  color:white;
+  padding:10px 15px;
+  border-radius:8px;
+  cursor:pointer;
+}
+main{padding:20px;}
+.box{
+  background:#15151c;
+  padding:15px;
+  border-radius:10px;
+  margin-bottom:20px;
+}
+.template{
+  padding:10px;
+  background:#1f1f2b;
+  border-radius:8px;
+  margin:8px 0;
+  cursor:pointer;
+}
+.template:hover{background:#2a2a3a;}
+input,textarea{
+  width:100%;
+  padding:10px;
+  border-radius:6px;
+  border:none;
+  margin-top:8px;
+}
+video{
+  width:100%;
+  margin-top:10px;
+  border-radius:10px;
+}
+.heart{
+  font-size:24px;
+  cursor:pointer;
+}
+.saved{color:red;}
+.comment{
+  background:#1e1e29;
+  padding:8px;
+  border-radius:6px;
+  margin-top:6px;
+}
+footer{
+  text-align:center;
+  padding:10px;
+  background:#111;
+  opacity:0.7;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h2>NOXSTUDIO MONTAG</h2>
+  <button onclick="login()">تسجيل دخول</button>
+</header>
+
+<main>
+
+<div class="box">
+  <h3>📤 ارفع فيديو</h3>
+  <input type="file" accept="video/*" onchange="loadVideo(event)">
+  <video id="video" controls></video>
+</div>
+
+<div class="box">
+  <h3>🎬 القوالب</h3>
+  <div class="template" onclick="selectTemplate('حماسي')">🔥 حماسي</div>
+  <div class="template" onclick="selectTemplate('سينمائي')">🎥 سينمائي</div>
+  <div class="template" onclick="selectTemplate('تيك توك')">⚡ تيك توك</div>
+</div>
+
+<div class="box">
+  <h3>🤖 AI Montage</h3>
+  <input id="aiText" placeholder="اكتب أمر للذكاء الاصطناعي">
+  <button onclick="runAI()">تشغيل AI</button>
+  <p id="aiResult"></p>
+</div>
+
+<div class="box">
+  <h3>❤️ حفظ الفيديو</h3>
+  <span class="heart" id="heart" onclick="saveVideo()">♡</span>
+</div>
+
+<div class="box">
+  <h3>💬 التعليقات</h3>
+  <textarea id="commentText" placeholder="اكتب تعليقك"></textarea>
+  <button onclick="addComment()">نشر</button>
+  <div id="comments"></div>
+</div>
+
+</main>
+
+<footer>© 2026 NOXSTUDIO</footer>
+
+<script>
+function login(){
+  alert("تسجيل Google / Apple (قريبًا)");
+}
+
+function loadVideo(e){
+  const video=document.getElementById("video");
+  video.src=URL.createObjectURL(e.target.files[0]);
+}
+
+function selectTemplate(name){
+  alert("تم اختيار قالب: "+name);
+}
+
+function runAI(){
+  const text=document.getElementById("aiText").value;
+  document.getElementById("aiResult").innerHTML=
+  "اختر AI:<br>1️⃣ ستايل حماسي<br>2️⃣ ستايل سينمائي<br>3️⃣ ستايل ترند";
+}
+
+function saveVideo(){
+  const heart=document.getElementById("heart");
+  heart.classList.toggle("saved");
+  heart.textContent = heart.classList.contains("saved") ? "♥" : "♡";
+}
+
+function addComment(){
+  const text=document.getElementById("commentText").value;
+  if(!text) return;
+  const div=document.createElement("div");
+  div.className="comment";
+  div.textContent=text;
+  document.getElementById("comments").appendChild(div);
+  document.getElementById("commentText").value="";
+}
+</script>
+
+</body>
+</html>
