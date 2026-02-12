@@ -21,14 +21,13 @@ textarea,input{width:100%;padding:6px;border-radius:6px;border:none;margin-top:5
 <header>
 <h2>Nox Studio Ultimate</h2>
 <div id="userInfo"></div>
-<button onclick="openLogin();playClick()">تسجيل دخول</button>
-<button onclick="logout();playClick()">تسجيل خروج</button>
-<button onclick="playIntro()">تشغيل الافتتاحية</button>
+<button onclick="openLogin()">تسجيل دخول</button>
+<button onclick="logout()">تسجيل خروج</button>
 </header>
 
 <div class="section">
 <h3>📤 رفع فيديو</h3>
-<input type="file" accept="video/*" onchange="loadVideo(event);playClick()">
+<input type="file" accept="video/*" onchange="loadVideo(event)">
 <div style="position:relative">
 <video id="video" controls></video>
 <div id="overlay" class="textOverlay"></div>
@@ -36,32 +35,32 @@ textarea,input{width:100%;padding:6px;border-radius:6px;border:none;margin-top:5
 <textarea id="desc" placeholder="وصف الفيديو"></textarea>
 
 <h3>🎨 الفلاتر</h3>
-<button onclick="applyFilter('none');playClick()">عادي</button>
-<button onclick="applyFilter('cinematic');playClick()">سينمائي</button>
-<button onclick="applyFilter('vintage');playClick()">Vintage</button>
-<button onclick="applyFilter('noir');playClick()">أبيض وأسود</button>
-<button onclick="applyFilter('neon');playClick()">نيون</button>
-<button onclick="applyFilter('anime');playClick()">أنمي</button>
-<button onclick="applyFilter('bright');playClick()">مشرق</button>
-<button onclick="applyFilter('dark');playClick()">داكن</button>
+<button onclick="applyFilter('none')">عادي</button>
+<button onclick="applyFilter('cinematic')">سينمائي</button>
+<button onclick="applyFilter('vintage')">Vintage</button>
+<button onclick="applyFilter('noir')">أبيض وأسود</button>
+<button onclick="applyFilter('neon')">نيون</button>
+<button onclick="applyFilter('anime')">أنمي</button>
+<button onclick="applyFilter('bright')">مشرق</button>
+<button onclick="applyFilter('dark')">داكن</button>
 
 <h3>⚡ الحركة</h3>
-<button onclick="zoom(1.2);playClick()">Zoom+</button>
-<button onclick="zoom(1);playClick()">Reset Zoom</button>
-<button onclick="rotate();playClick()">تدوير</button>
-<button onclick="shake();playClick()">اهتزاز</button>
+<button onclick="zoom(1.2)">Zoom+</button>
+<button onclick="zoom(1)">Reset Zoom</button>
+<button onclick="rotate()">تدوير</button>
+<button onclick="shake()">اهتزاز</button>
 
 <h3>⏱️ سرعة الفيديو</h3>
-<button onclick="speed(.5);playClick()">بطيء</button>
-<button onclick="speed(1);playClick()">عادي</button>
-<button onclick="speed(1.5);playClick()">سريع</button>
+<button onclick="speed(.5)">بطيء</button>
+<button onclick="speed(1)">عادي</button>
+<button onclick="speed(1.5)">سريع</button>
 
 <h3>📝 نص متحرك على الفيديو</h3>
 <input id="textInput" placeholder="اكتب نص">
-<button onclick="addText();playClick()">إضافة نص</button>
+<button onclick="addText()">إضافة نص</button>
 
 <br><br>
-<button onclick="publish();playClick()">نشر الفيديو</button>
+<button onclick="publish()">نشر الفيديو</button>
 </div>
 
 <div class="section">
@@ -73,9 +72,9 @@ textarea,input{width:100%;padding:6px;border-radius:6px;border:none;margin-top:5
 <div style="background:#111;padding:20px;border-radius:15px;width:280px">
 <input id="uid" placeholder="المعرف">
 <input id="pass" type="password" placeholder="كلمة المرور">
-<button onclick="register();playClick()">إنشاء حساب</button>
-<button onclick="login();playClick()">دخول</button>
-<button onclick="closeLogin();playClick()">إغلاق</button>
+<button onclick="register()">إنشاء حساب</button>
+<button onclick="login()">دخول</button>
+<button onclick="closeLogin()">إغلاق</button>
 </div>
 </div>
 
@@ -93,19 +92,6 @@ request.onupgradeneeded=e=>{
 request.onsuccess=e=>{
  db=e.target.result
  render()
-}
-
-// أصوات للأزرار
-function playClick(){
- let audio=new Audio("https://www.soundjay.com/buttons/sounds/button-16.mp3")
- audio.play()
-}
-
-// افتتاحية
-function playIntro(){
- let audio=new Audio("https://www.soundjay.com/misc/sounds/bell-ringing-01.mp3")
- audio.play()
- alert("أهلاً بك في Nox Studio!")
 }
 
 function openLogin(){loginBox.style.display="flex"}
@@ -193,7 +179,7 @@ function deleteVideo(id){
 }
 
 function publish(){
- if(!currentUser)return alert("سجل دخول أولاً")
+ if(!currentUser)return alert("عذراً، يجب أن تسجل دخولك ❌")
  if(!video.dataset.data)return alert("ارفع فيديو")
  let post={id:Date.now(),user:currentUser,video:video.dataset.data,desc:desc.value,comments:[]}
  saveVideoData(post)
