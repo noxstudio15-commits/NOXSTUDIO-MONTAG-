@@ -2,24 +2,23 @@
 <html lang="ar">
 <head>
 <meta charset="UTF-8">
-<title>Nox Studio Pro</title>
+<title>Nox Studio Ultimate</title>
 <style>
-body{margin:0;font-family:Arial;background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);color:white}
+body{margin:0;font-family:Arial;background:linear-gradient(135deg,#1f1c2c,#928dab);color:white}
 header{text-align:center;padding:20px;background:black}
 button{padding:6px 12px;border:none;border-radius:8px;margin:4px;font-weight:bold;cursor:pointer}
 button:hover{opacity:.8}
 .section{background:rgba(0,0,0,.5);margin:15px;padding:15px;border-radius:15px}
-video{width:100%;border-radius:12px;margin-top:10px;transition:.3s}
+video{width:100%;border-radius:12px;margin-top:10px}
 textarea,input{width:100%;padding:6px;border-radius:6px;border:none;margin-top:5px}
 .post{background:#00000090;padding:10px;margin-top:10px;border-radius:10px}
 .comment{background:#000000aa;padding:5px;margin-top:5px;border-radius:6px}
-.textOverlay{position:absolute;color:white;font-size:30px;font-weight:bold;text-shadow:0 0 10px black}
 </style>
 </head>
 <body>
 
 <header>
-<h2>Nox Studio Pro</h2>
+<h2>Nox Studio Ultimate</h2>
 <div id="userInfo"></div>
 <button onclick="openLogin()">تسجيل دخول</button>
 <button onclick="logout()">تسجيل خروج</button>
@@ -28,39 +27,8 @@ textarea,input{width:100%;padding:6px;border-radius:6px;border:none;margin-top:5
 <div class="section">
 <h3>📤 رفع فيديو</h3>
 <input type="file" accept="video/*" onchange="loadVideo(event)">
-<div style="position:relative">
 <video id="video" controls></video>
-<div id="overlay" class="textOverlay"></div>
-</div>
-
 <textarea id="desc" placeholder="وصف الفيديو"></textarea>
-
-<h3>🎨 فلاتر</h3>
-<button onclick="filter('none')">عادي</button>
-<button onclick="filter('cinematic')">سينمائي</button>
-<button onclick="filter('vintage')">Vintage</button>
-<button onclick="filter('noir')">أبيض وأسود</button>
-<button onclick="filter('neon')">نيون</button>
-<button onclick="filter('anime')">أنمي</button>
-<button onclick="filter('bright')">مشرق</button>
-<button onclick="filter('dark')">داكن</button>
-
-<h3>⚡ حركة</h3>
-<button onclick="zoom(1.2)">Zoom+</button>
-<button onclick="zoom(1)">Reset Zoom</button>
-<button onclick="rotate()">تدوير</button>
-<button onclick="shake()">اهتزاز</button>
-
-<h3>⏱️ سرعة</h3>
-<button onclick="speed(.5)">بطيء</button>
-<button onclick="speed(1)">عادي</button>
-<button onclick="speed(1.5)">سريع</button>
-
-<h3>📝 نص فوق الفيديو</h3>
-<input id="textInput" placeholder="اكتب نص">
-<button onclick="addText()">إضافة نص</button>
-
-<br><br>
 <button onclick="publish()">نشر الفيديو</button>
 </div>
 
@@ -80,13 +48,39 @@ textarea,input{width:100%;padding:6px;border-radius:6px;border:none;margin-top:5
 </div>
 
 <script>
+let db
 let users=JSON.parse(localStorage.getItem("users"))||[]
 let currentUser=JSON.parse(localStorage.getItem("currentUser"))||null
-let postsData=JSON.parse(localStorage.getItem("posts"))||[]
-let rotation=0
 
-updateUI()
+const request=indexedDB.open("NoxDB",1)
+
+request.onupgradeneeded=e=>{
+db=e.target.result
+db.createObjectStore("videos",{keyPath:"id"})
+}
+
+request.onsuccess=e=>{
+db=e.target.result
 render()
+}
+
+function saveVideoData(data){
+let tx=db.transaction("videos","readwrite")
+tx.objectStore("videos").put(data)
+}
+
+function getAllVideos(callback){
+let tx=db.transaction("videos","readonly")
+let store=tx.objectStore("videos")
+let req=store.getAll()
+req.onsuccess=()=>callback(req.result)
+}
+
+function deleteVideo(id){
+let tx=db.transaction("videos","readwrite")
+tx.objectStore("videos").delete(id)
+render()
+}
 
 function openLogin(){loginBox.style.display="flex"}
 function closeLogin(){loginBox.style.display="none"}
@@ -120,100 +114,50 @@ userInfo.innerHTML=currentUser?"مسجل: "+currentUser:"غير مسجل"
 }
 
 function loadVideo(e){
-video.src=URL.createObjectURL(e.target.files[0])
+let file=e.target.files[0]
+let reader=new FileReader()
+reader.onload=function(){
+video.src=reader.result
+video.dataset.data=reader.result
 }
-
-function filter(type){
-switch(type){
-case'none':video.style.filter="none";break;
-case'cinematic':video.style.filter="contrast(120%) brightness(90%) sepia(30%)";break;
-case'vintage':video.style.filter="sepia(60%) contrast(110%)";break;
-case'noir':video.style.filter="grayscale(100%) contrast(140%)";break;
-case'neon':video.style.filter="hue-rotate(90deg) saturate(200%)";break;
-case'anime':video.style.filter="contrast(130%) saturate(180%) hue-rotate(10deg)";break;
-case'bright':video.style.filter="brightness(130%)";break;
-case'dark':video.style.filter="brightness(60%)";break;
-}
-}
-
-function zoom(val){video.style.transform="scale("+val+") rotate("+rotation+"deg)"}
-function rotate(){rotation+=90;video.style.transform="rotate("+rotation+"deg)"}
-function shake(){
-video.style.animation="shake .3s"
-setTimeout(()=>video.style.animation="",300)
-}
-
-function speed(s){video.playbackRate=s}
-
-function addText(){
-overlay.innerText=textInput.value
-overlay.style.top="40%"
-overlay.style.left="30%"
+reader.readAsDataURL(file)
 }
 
 function publish(){
 if(!currentUser)return alert("سجل دخول أولاً")
-if(!video.src)return alert("ارفع فيديو")
-let post={id:Date.now(),user:currentUser,video:video.src,desc:desc.value,comments:[]}
-postsData.push(post)
-localStorage.setItem("posts",JSON.stringify(postsData))
+if(!video.dataset.data)return alert("ارفع فيديو")
+
+let post={
+id:Date.now(),
+user:currentUser,
+video:video.dataset.data,
+desc:desc.value,
+comments:[]
+}
+
+saveVideoData(post)
 render()
 }
 
 function render(){
+if(!db)return
+getAllVideos(data=>{
 posts.innerHTML=""
-postsData.forEach(p=>{
+data.forEach(p=>{
 let div=document.createElement("div")
 div.className="post"
-let del=p.user==currentUser?`<button onclick="delPost(${p.id})">حذف</button>`:""
+let del=p.user==currentUser?`<button onclick="deleteVideo(${p.id})">حذف</button>`:""
 div.innerHTML=`
 <video src="${p.video}" controls></video>
 <p>${p.desc}</p>
-${del}
-<textarea id="c${p.id}" placeholder="تعليق"></textarea>
-<button onclick="comment(${p.id})">إرسال</button>
-<div id="com${p.id}"></div>`
+${del}`
 posts.appendChild(div)
-p.comments.forEach((c,i)=>{
-document.getElementById("com"+p.id).innerHTML+=`
-<div class="comment">${c} ${p.user==currentUser?`<button onclick="delComment(${p.id},${i})">حذف</button>`:""}</div>`
 })
 })
 }
 
-function delPost(id){
-postsData=postsData.filter(p=>p.id!=id)
-localStorage.setItem("posts",JSON.stringify(postsData))
-render()
-}
-
-function comment(id){
-if(!currentUser)return alert("سجل دخول")
-let text=document.getElementById("c"+id).value
-if(!text)return
-let post=postsData.find(p=>p.id==id)
-post.comments.push(text)
-localStorage.setItem("posts",JSON.stringify(postsData))
-render()
-}
-
-function delComment(pid,i){
-let post=postsData.find(p=>p.id==pid)
-post.comments.splice(i,1)
-localStorage.setItem("posts",JSON.stringify(postsData))
-render()
-}
+updateUI()
 </script>
-
-<style>
-@keyframes shake{
-0%{transform:translateX(0)}
-25%{transform:translateX(-5px)}
-50%{transform:translateX(5px)}
-75%{transform:translateX(-5px)}
-100%{transform:translateX(0)}
-}
-</style>
 
 </body>
 </html>
