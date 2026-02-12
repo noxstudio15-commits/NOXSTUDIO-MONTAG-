@@ -2,145 +2,77 @@
 <html lang="ar">
 <head>
 <meta charset="UTF-8">
-<title>NOXSTUDIO MONTAG</title>
+<title>Nox Studio Pro</title>
 <style>
-body{
-  margin:0;
-  font-family:Arial;
-  background:linear-gradient(135deg,#6a0dad,#ff6f61);
-  color:white;
-}
-header{
-  text-align:center;
-  padding:25px;
-  background:#1a1a1a;
-  box-shadow:0 0 20px #000;
-}
-button{
-  background:#fff;
-  color:#1a1a1a;
-  border:none;
-  padding:8px 14px;
-  border-radius:10px;
-  cursor:pointer;
-  margin:4px;
-  font-weight:bold;
-  transition:0.3s;
-}
-button:hover{background:#ffd700;color:#000;}
-input,textarea{
-  width:100%;
-  padding:8px;
-  border-radius:8px;
-  border:none;
-  margin-top:6px;
-}
-video{
-  width:100%;
-  border-radius:12px;
-  margin-top:10px;
-  box-shadow:0 0 20px #000;
-}
-.section{
-  background:rgba(0,0,0,0.6);
-  padding:20px;
-  margin:20px;
-  border-radius:20px;
-  box-shadow:0 0 15px #000;
-}
-.post{
-  background:#00000080;
-  padding:15px;
-  border-radius:12px;
-  margin-top:15px;
-}
-.comment{
-  background:#000000aa;
-  padding:6px;
-  border-radius:6px;
-  margin-top:5px;
-}
-#loginBox{
-  display:none;
-  position:fixed;
-  top:0;
-  left:0;
-  width:100%;
-  height:100%;
-  background:#000000d0;
-  justify-content:center;
-  align-items:center;
-}
-.loginContent{
-  background:#111;
-  padding:25px;
-  border-radius:20px;
-  width:300px;
-}
-.aiOptions button{
-  margin:4px;
-  background:#ff69b4;
-  color:white;
-}
+body{margin:0;font-family:Arial;background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);color:white}
+header{text-align:center;padding:20px;background:black}
+button{padding:6px 12px;border:none;border-radius:8px;margin:4px;font-weight:bold;cursor:pointer}
+button:hover{opacity:.8}
+.section{background:rgba(0,0,0,.5);margin:15px;padding:15px;border-radius:15px}
+video{width:100%;border-radius:12px;margin-top:10px;transition:.3s}
+textarea,input{width:100%;padding:6px;border-radius:6px;border:none;margin-top:5px}
+.post{background:#00000090;padding:10px;margin-top:10px;border-radius:10px}
+.comment{background:#000000aa;padding:5px;margin-top:5px;border-radius:6px}
+.textOverlay{position:absolute;color:white;font-size:30px;font-weight:bold;text-shadow:0 0 10px black}
 </style>
 </head>
 <body>
 
 <header>
-<h1>NOXSTUDIO MONTAG</h1>
-<p>✨ ترحيب من شركة Nox Studio ✨</p>
-<button onclick="openLogin()">تسجيل الدخول</button>
-<button onclick="showSaved()">محفوظاتي ❤️</button>
+<h2>Nox Studio Pro</h2>
+<div id="userInfo"></div>
+<button onclick="openLogin()">تسجيل دخول</button>
+<button onclick="logout()">تسجيل خروج</button>
 </header>
 
 <div class="section">
-<h2>📤 رفع الفيديو وتعديله</h2>
+<h3>📤 رفع فيديو</h3>
 <input type="file" accept="video/*" onchange="loadVideo(event)">
+<div style="position:relative">
 <video id="video" controls></video>
-<textarea id="description" placeholder="وصف الفيديو"></textarea>
+<div id="overlay" class="textOverlay"></div>
+</div>
 
-<h3>🎨 فلاتر وتصاميم</h3>
-<button onclick="applyStyle('حماسي')">🔥 حماسي</button>
-<button onclick="applyStyle('سينمائي')">🎥 سينمائي</button>
-<button onclick="applyStyle('تيك توك')">⚡ تيك توك</button>
-<button onclick="applyStyle('Vlog')">🎬 Vlog</button>
-<button onclick="applyStyle('كرتوني')">🖌️ كرتوني</button>
-<button onclick="applyStyle('Noir')">🌑 Noir</button>
-<button onclick="applyStyle('Vintage')">🕰️ Vintage</button>
-<button onclick="applyStyle('Bright')">☀️ Bright</button>
+<textarea id="desc" placeholder="وصف الفيديو"></textarea>
 
-<h3>⏱️ تعديل السرعة والتدوير</h3>
-<button onclick="setSpeed(0.5)">إبطاء</button>
-<button onclick="setSpeed(1)">عادي</button>
-<button onclick="setSpeed(1.5)">سريع</button>
-<button onclick="rotateVideo()">تدوير</button>
+<h3>🎨 فلاتر</h3>
+<button onclick="filter('none')">عادي</button>
+<button onclick="filter('cinematic')">سينمائي</button>
+<button onclick="filter('vintage')">Vintage</button>
+<button onclick="filter('noir')">أبيض وأسود</button>
+<button onclick="filter('neon')">نيون</button>
+<button onclick="filter('anime')">أنمي</button>
+<button onclick="filter('bright')">مشرق</button>
+<button onclick="filter('dark')">داكن</button>
 
-<h3>🤖 AI للمونتاج</h3>
-<textarea id="aiText" placeholder="اكتب أمر للذكاء الاصطناعي"></textarea>
-<button onclick="runAI()">تشغيل AI</button>
-<div class="aiOptions" id="aiOptions"></div>
+<h3>⚡ حركة</h3>
+<button onclick="zoom(1.2)">Zoom+</button>
+<button onclick="zoom(1)">Reset Zoom</button>
+<button onclick="rotate()">تدوير</button>
+<button onclick="shake()">اهتزاز</button>
 
-<br>
-<button onclick="publishVideo()">نشر الفيديو</button>
+<h3>⏱️ سرعة</h3>
+<button onclick="speed(.5)">بطيء</button>
+<button onclick="speed(1)">عادي</button>
+<button onclick="speed(1.5)">سريع</button>
+
+<h3>📝 نص فوق الفيديو</h3>
+<input id="textInput" placeholder="اكتب نص">
+<button onclick="addText()">إضافة نص</button>
+
+<br><br>
+<button onclick="publish()">نشر الفيديو</button>
 </div>
 
 <div class="section">
-<h2>🎥 الفيديوهات المنشورة</h2>
+<h3>🎥 الفيديوهات</h3>
 <div id="posts"></div>
 </div>
 
-<div class="section">
-<h2>❤️ الفيديوهات المحفوظة</h2>
-<div id="savedPosts"></div>
-</div>
-
-<!-- تسجيل الدخول -->
-<div id="loginBox">
-<div class="loginContent">
-<h3>تسجيل / إنشاء حساب</h3>
-<input id="username" placeholder="اسم المستخدم">
-<input id="userid" placeholder="ID الحساب">
-<input id="password" placeholder="كلمة المرور">
+<div id="loginBox" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:#000000d0;justify-content:center;align-items:center">
+<div style="background:#111;padding:20px;border-radius:15px;width:280px">
+<input id="uid" placeholder="المعرف">
+<input id="pass" type="password" placeholder="كلمة المرور">
 <button onclick="register()">إنشاء حساب</button>
 <button onclick="login()">دخول</button>
 <button onclick="closeLogin()">إغلاق</button>
@@ -148,110 +80,140 @@ video{
 </div>
 
 <script>
-let loggedIn=false;
-let currentUser=null;
-let rotation=0;
-let postsData=JSON.parse(localStorage.getItem("posts"))||[];
-let savedData=JSON.parse(localStorage.getItem("saved"))||[];
+let users=JSON.parse(localStorage.getItem("users"))||[]
+let currentUser=JSON.parse(localStorage.getItem("currentUser"))||null
+let postsData=JSON.parse(localStorage.getItem("posts"))||[]
+let rotation=0
 
-function openLogin(){loginBox.style.display="flex";}
-function closeLogin(){loginBox.style.display="none";}
+updateUI()
+render()
+
+function openLogin(){loginBox.style.display="flex"}
+function closeLogin(){loginBox.style.display="none"}
 
 function register(){
-localStorage.setItem("user",JSON.stringify({name:username.value,id:userid.value,pass:password.value}));
-alert("تم إنشاء الحساب ✅");
+if(!uid.value||!pass.value)return alert("عبي البيانات")
+if(users.find(u=>u.id==uid.value))return alert("المعرف مستخدم")
+users.push({id:uid.value,pass:pass.value})
+localStorage.setItem("users",JSON.stringify(users))
+alert("تم إنشاء الحساب")
 }
 
 function login(){
-let user=JSON.parse(localStorage.getItem("user"));
-if(user && user.id===userid.value && user.pass===password.value){
-loggedIn=true;
-currentUser=user.id;
-alert("تم تسجيل الدخول ✅");
-closeLogin();
-}else{alert("بيانات خطأ ❌");}
+let user=users.find(u=>u.id==uid.value&&u.pass==pass.value)
+if(user){
+currentUser=user.id
+localStorage.setItem("currentUser",JSON.stringify(currentUser))
+updateUI()
+closeLogin()
+}else alert("بيانات غلط")
 }
 
-function loadVideo(e){video.src=URL.createObjectURL(e.target.files[0]);}
-function setSpeed(s){video.playbackRate=s;}
-function rotateVideo(){rotation+=90;video.style.transform="rotate("+rotation+"deg)";}
-function applyStyle(style){
-switch(style){
-case'حماسي':video.style.filter="contrast(150%) saturate(170%)";break;
-case'سينمائي':video.style.filter="brightness(90%) sepia(30%)";break;
-case'تيك توك':video.style.filter="hue-rotate(25deg) saturate(200%)";break;
-case'Vlog':video.style.filter="brightness(120%) contrast(110%)";break;
-case'كرتوني':video.style.filter="contrast(120%) saturate(180%) hue-rotate(15deg)";break;
-case'Noir':video.style.filter="grayscale(100%) contrast(140%)";break;
-case'Vintage':video.style.filter="sepia(60%) contrast(110%) brightness(90%)";break;
-case'Bright':video.style.filter="brightness(130%) saturate(120%)";break;
+function logout(){
+currentUser=null
+localStorage.removeItem("currentUser")
+updateUI()
+}
+
+function updateUI(){
+userInfo.innerHTML=currentUser?"مسجل: "+currentUser:"غير مسجل"
+}
+
+function loadVideo(e){
+video.src=URL.createObjectURL(e.target.files[0])
+}
+
+function filter(type){
+switch(type){
+case'none':video.style.filter="none";break;
+case'cinematic':video.style.filter="contrast(120%) brightness(90%) sepia(30%)";break;
+case'vintage':video.style.filter="sepia(60%) contrast(110%)";break;
+case'noir':video.style.filter="grayscale(100%) contrast(140%)";break;
+case'neon':video.style.filter="hue-rotate(90deg) saturate(200%)";break;
+case'anime':video.style.filter="contrast(130%) saturate(180%) hue-rotate(10deg)";break;
+case'bright':video.style.filter="brightness(130%)";break;
+case'dark':video.style.filter="brightness(60%)";break;
 }
 }
 
-function runAI(){
-if(!loggedIn){alert("عذرا يجب تسجيل الدخول ❌");return;}
-let cmd=aiText.value.trim();
-if(!cmd){alert("اكتب أمر AI");return;}
-aiOptions.innerHTML="";
-let options=['تصميم احترافي','فلتر جديد','مونتاج سريع'];
-options.forEach(opt=>{
-let b=document.createElement("button");
-b.textContent=opt;
-b.onclick=()=>{alert("تم تطبيق خيار AI: "+opt);};
-aiOptions.appendChild(b);
-});
+function zoom(val){video.style.transform="scale("+val+") rotate("+rotation+"deg)"}
+function rotate(){rotation+=90;video.style.transform="rotate("+rotation+"deg)"}
+function shake(){
+video.style.animation="shake .3s"
+setTimeout(()=>video.style.animation="",300)
 }
 
-function publishVideo(){
-if(!loggedIn){alert("عذرا يجب تسجيل الدخول ❌");openLogin();return;}
-if(!video.src){alert("ارفع فيديو أولاً");return;}
-let post={id:Date.now(),user:currentUser,video:video.src,desc:description.value,comments:[]};
-postsData.push(post);
-localStorage.setItem("posts",JSON.stringify(postsData));
-renderPosts();
-alert("تم نشر الفيديو ✅");
+function speed(s){video.playbackRate=s}
+
+function addText(){
+overlay.innerText=textInput.value
+overlay.style.top="40%"
+overlay.style.left="30%"
 }
 
-function renderPosts(){
-posts.innerHTML="";
+function publish(){
+if(!currentUser)return alert("سجل دخول أولاً")
+if(!video.src)return alert("ارفع فيديو")
+let post={id:Date.now(),user:currentUser,video:video.src,desc:desc.value,comments:[]}
+postsData.push(post)
+localStorage.setItem("posts",JSON.stringify(postsData))
+render()
+}
+
+function render(){
+posts.innerHTML=""
 postsData.forEach(p=>{
-let div=document.createElement("div");
-div.className="post";
-let delBtn=p.user===currentUser?`<button onclick="deletePost(${p.id})">حذف الفيديو ❌</button>`:"";
-div.innerHTML=`<video src="${p.video}" controls></video>
+let div=document.createElement("div")
+div.className="post"
+let del=p.user==currentUser?`<button onclick="delPost(${p.id})">حذف</button>`:""
+div.innerHTML=`
+<video src="${p.video}" controls></video>
 <p>${p.desc}</p>
-<button onclick="savePost(${p.id})">❤️ حفظ</button>
-${delBtn}
-<textarea id="c${p.id}" placeholder="اكتب تعليق"></textarea>
-<button onclick="addComment(${p.id})">تعليق</button>
-<div id="comments${p.id}"></div>`;
-posts.appendChild(div);
+${del}
+<textarea id="c${p.id}" placeholder="تعليق"></textarea>
+<button onclick="comment(${p.id})">إرسال</button>
+<div id="com${p.id}"></div>`
+posts.appendChild(div)
 p.comments.forEach((c,i)=>{
-let cDiv=document.createElement("div");
-cDiv.className="comment";
-let del=p.user===currentUser?` <button onclick="deleteComment(${p.id},${i})">حذف</button>`:"";
-cDiv.innerHTML=c+del;
-document.getElementById("comments"+p.id).appendChild(cDiv);
-});
-});
+document.getElementById("com"+p.id).innerHTML+=`
+<div class="comment">${c} ${p.user==currentUser?`<button onclick="delComment(${p.id},${i})">حذف</button>`:""}</div>`
+})
+})
 }
 
-function addComment(id){
-if(!loggedIn){alert("عذرا يجب تسجيل الدخول ❌");openLogin();return;}
-let text=document.getElementById("c"+id).value;
-if(!text)return;
-let post=postsData.find(p=>p.id===id);
-post.comments.push(text);
-localStorage.setItem("posts",JSON.stringify(postsData));
-renderPosts();
+function delPost(id){
+postsData=postsData.filter(p=>p.id!=id)
+localStorage.setItem("posts",JSON.stringify(postsData))
+render()
 }
 
-function deletePost(id){postsData=postsData.filter(p=>p.id!==id);localStorage.setItem("posts",JSON.stringify(postsData));renderPosts();}
-function deleteComment(postId,index){let post=postsData.find(p=>p.id===postId);post.comments.splice(index,1);localStorage.setItem("posts",JSON.stringify(postsData));renderPosts();}
+function comment(id){
+if(!currentUser)return alert("سجل دخول")
+let text=document.getElementById("c"+id).value
+if(!text)return
+let post=postsData.find(p=>p.id==id)
+post.comments.push(text)
+localStorage.setItem("posts",JSON.stringify(postsData))
+render()
+}
 
-function savePost(id){if(!loggedIn){alert("عذرا يجب تسجيل الدخول ❌");openLogin();return;}if(!savedData.includes(id)){savedData.push(id);localStorage.setItem("saved",JSON.stringify(savedData));renderSaved();alert("تم الحفظ ❤️");}}
-function renderSaved(){savedPosts.innerHTML="";savedData.forEach(id=>{let post=postsData.find(p=>p.id===id);if(post){let div=document.createElement("div");div.className="post";div.innerHTML=`<video src="${post.video}" controls></video><p>${post.desc}</p>`;savedPosts.appendChild(div);}});}
-function showSaved(){window.scrollTo(0,document.body.scrollHeight);renderSaved();}
+function delComment(pid,i){
+let post=postsData.find(p=>p.id==pid)
+post.comments.splice(i,1)
+localStorage.setItem("posts",JSON.stringify(postsData))
+render()
+}
 </script>
+
+<style>
+@keyframes shake{
+0%{transform:translateX(0)}
+25%{transform:translateX(-5px)}
+50%{transform:translateX(5px)}
+75%{transform:translateX(-5px)}
+100%{transform:translateX(0)}
+}
+</style>
+
 </body>
 </html>
