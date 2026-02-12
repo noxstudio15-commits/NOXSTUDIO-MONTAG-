@@ -9,10 +9,11 @@ header{text-align:center;padding:20px;background:black}
 button{padding:6px 12px;border:none;border-radius:8px;margin:4px;font-weight:bold;cursor:pointer}
 button:hover{opacity:.8}
 .section{background:rgba(0,0,0,.5);margin:15px;padding:15px;border-radius:15px}
-video{width:100%;border-radius:12px;margin-top:10px}
+video{width:100%;border-radius:12px;margin-top:10px;transition:.3s}
 textarea,input{width:100%;padding:6px;border-radius:6px;border:none;margin-top:5px}
 .post{background:#00000090;padding:10px;margin-top:10px;border-radius:10px}
 .comment{background:#000000aa;padding:5px;margin-top:5px;border-radius:6px}
+.textOverlay{position:absolute;color:white;font-size:30px;font-weight:bold;text-shadow:0 0 10px black}
 </style>
 </head>
 <body>
@@ -20,20 +21,51 @@ textarea,input{width:100%;padding:6px;border-radius:6px;border:none;margin-top:5
 <header>
 <h2>Nox Studio Ultimate</h2>
 <div id="userInfo"></div>
-<button onclick="openLogin()">تسجيل دخول</button>
-<button onclick="logout()">تسجيل خروج</button>
+<button onclick="openLogin();playClick()">تسجيل دخول</button>
+<button onclick="logout();playClick()">تسجيل خروج</button>
+<button onclick="playIntro()">تشغيل الافتتاحية</button>
 </header>
 
 <div class="section">
 <h3>📤 رفع فيديو</h3>
-<input type="file" accept="video/*" onchange="loadVideo(event)">
+<input type="file" accept="video/*" onchange="loadVideo(event);playClick()">
+<div style="position:relative">
 <video id="video" controls></video>
+<div id="overlay" class="textOverlay"></div>
+</div>
 <textarea id="desc" placeholder="وصف الفيديو"></textarea>
-<button onclick="publish()">نشر الفيديو</button>
+
+<h3>🎨 الفلاتر</h3>
+<button onclick="applyFilter('none');playClick()">عادي</button>
+<button onclick="applyFilter('cinematic');playClick()">سينمائي</button>
+<button onclick="applyFilter('vintage');playClick()">Vintage</button>
+<button onclick="applyFilter('noir');playClick()">أبيض وأسود</button>
+<button onclick="applyFilter('neon');playClick()">نيون</button>
+<button onclick="applyFilter('anime');playClick()">أنمي</button>
+<button onclick="applyFilter('bright');playClick()">مشرق</button>
+<button onclick="applyFilter('dark');playClick()">داكن</button>
+
+<h3>⚡ الحركة</h3>
+<button onclick="zoom(1.2);playClick()">Zoom+</button>
+<button onclick="zoom(1);playClick()">Reset Zoom</button>
+<button onclick="rotate();playClick()">تدوير</button>
+<button onclick="shake();playClick()">اهتزاز</button>
+
+<h3>⏱️ سرعة الفيديو</h3>
+<button onclick="speed(.5);playClick()">بطيء</button>
+<button onclick="speed(1);playClick()">عادي</button>
+<button onclick="speed(1.5);playClick()">سريع</button>
+
+<h3>📝 نص متحرك على الفيديو</h3>
+<input id="textInput" placeholder="اكتب نص">
+<button onclick="addText();playClick()">إضافة نص</button>
+
+<br><br>
+<button onclick="publish();playClick()">نشر الفيديو</button>
 </div>
 
 <div class="section">
-<h3>🎥 الفيديوهات</h3>
+<h3>🎥 الفيديوهات المنشورة</h3>
 <div id="posts"></div>
 </div>
 
@@ -41,45 +73,39 @@ textarea,input{width:100%;padding:6px;border-radius:6px;border:none;margin-top:5
 <div style="background:#111;padding:20px;border-radius:15px;width:280px">
 <input id="uid" placeholder="المعرف">
 <input id="pass" type="password" placeholder="كلمة المرور">
-<button onclick="register()">إنشاء حساب</button>
-<button onclick="login()">دخول</button>
-<button onclick="closeLogin()">إغلاق</button>
+<button onclick="register();playClick()">إنشاء حساب</button>
+<button onclick="login();playClick()">دخول</button>
+<button onclick="closeLogin();playClick()">إغلاق</button>
 </div>
 </div>
 
 <script>
-let db
 let users=JSON.parse(localStorage.getItem("users"))||[]
 let currentUser=JSON.parse(localStorage.getItem("currentUser"))||null
+let rotation=0
+let db
 
 const request=indexedDB.open("NoxDB",1)
-
 request.onupgradeneeded=e=>{
-db=e.target.result
-db.createObjectStore("videos",{keyPath:"id"})
+ db=e.target.result
+ db.createObjectStore("videos",{keyPath:"id"})
 }
-
 request.onsuccess=e=>{
-db=e.target.result
-render()
+ db=e.target.result
+ render()
 }
 
-function saveVideoData(data){
-let tx=db.transaction("videos","readwrite")
-tx.objectStore("videos").put(data)
+// أصوات للأزرار
+function playClick(){
+ let audio=new Audio("https://www.soundjay.com/buttons/sounds/button-16.mp3")
+ audio.play()
 }
 
-function getAllVideos(callback){
-let tx=db.transaction("videos","readonly")
-let store=tx.objectStore("videos")
-let req=store.getAll()
-req.onsuccess=()=>callback(req.result)
-}
-
-function deleteVideo(id){
-let tx=db.transaction("videos","readwrite")
-tx.objectStore("videos").delete(id)
-render()
+// افتتاحية
+function playIntro(){
+ let audio=new Audio("https://www.soundjay.com/misc/sounds/bell-ringing-01.mp3")
+ audio.play()
+ alert("أهلاً بك في Nox Studio!")
 }
 
 function openLogin(){loginBox.style.display="flex"}
@@ -96,68 +122,138 @@ alert("تم إنشاء الحساب")
 function login(){
 let user=users.find(u=>u.id==uid.value&&u.pass==pass.value)
 if(user){
-currentUser=user.id
-localStorage.setItem("currentUser",JSON.stringify(currentUser))
-updateUI()
-closeLogin()
+ currentUser=user.id
+ localStorage.setItem("currentUser",JSON.stringify(currentUser))
+ updateUI()
+ closeLogin()
 }else alert("بيانات غلط")
 }
 
 function logout(){
-currentUser=null
-localStorage.removeItem("currentUser")
-updateUI()
+ currentUser=null
+ localStorage.removeItem("currentUser")
+ updateUI()
 }
 
 function updateUI(){
-userInfo.innerHTML=currentUser?"مسجل: "+currentUser:"غير مسجل"
+ userInfo.innerHTML=currentUser?"مسجل: "+currentUser:"غير مسجل"
 }
 
+// فيديو
 function loadVideo(e){
-let file=e.target.files[0]
-let reader=new FileReader()
-reader.onload=function(){
-video.src=reader.result
-video.dataset.data=reader.result
+ let file=e.target.files[0]
+ let reader=new FileReader()
+ reader.onload=function(){
+   video.src=reader.result
+   video.dataset.data=reader.result
+ }
+ reader.readAsDataURL(file)
 }
-reader.readAsDataURL(file)
+
+// فلاتر
+function applyFilter(type){
+ switch(type){
+   case'none':video.style.filter="none";break;
+   case'cinematic':video.style.filter="contrast(120%) brightness(90%) sepia(30%)";break;
+   case'vintage':video.style.filter="sepia(60%) contrast(110%)";break;
+   case'noir':video.style.filter="grayscale(100%) contrast(140%)";break;
+   case'neon':video.style.filter="hue-rotate(90deg) saturate(200%)";break;
+   case'anime':video.style.filter="contrast(130%) saturate(180%) hue-rotate(10deg)";break;
+   case'bright':video.style.filter="brightness(130%)";break;
+   case'dark':video.style.filter="brightness(60%)";break;
+ }
+}
+
+// حركة
+function zoom(val){video.style.transform="scale("+val+") rotate("+rotation+"deg)"}
+function rotate(){rotation+=90;video.style.transform="rotate("+rotation+"deg)"}
+function shake(){video.style.animation="shake .3s";setTimeout(()=>video.style.animation="",300)}
+function speed(s){video.playbackRate=s}
+
+// نص
+function addText(){overlay.innerText=textInput.value;overlay.style.top="40%";overlay.style.left="30%"}
+
+// حفظ الفيديوهات باستخدام IndexedDB
+function saveVideoData(data){
+ let tx=db.transaction("videos","readwrite")
+ tx.objectStore("videos").put(data)
+}
+
+function getAllVideos(callback){
+ let tx=db.transaction("videos","readonly")
+ let store=tx.objectStore("videos")
+ let req=store.getAll()
+ req.onsuccess=()=>callback(req.result)
+}
+
+function deleteVideo(id){
+ let tx=db.transaction("videos","readwrite")
+ tx.objectStore("videos").delete(id)
+ render()
 }
 
 function publish(){
-if(!currentUser)return alert("سجل دخول أولاً")
-if(!video.dataset.data)return alert("ارفع فيديو")
-
-let post={
-id:Date.now(),
-user:currentUser,
-video:video.dataset.data,
-desc:desc.value,
-comments:[]
+ if(!currentUser)return alert("سجل دخول أولاً")
+ if(!video.dataset.data)return alert("ارفع فيديو")
+ let post={id:Date.now(),user:currentUser,video:video.dataset.data,desc:desc.value,comments:[]}
+ saveVideoData(post)
+ render()
 }
 
-saveVideoData(post)
-render()
-}
-
+// عرض الفيديوهات
 function render(){
-if(!db)return
-getAllVideos(data=>{
-posts.innerHTML=""
-data.forEach(p=>{
-let div=document.createElement("div")
-div.className="post"
-let del=p.user==currentUser?`<button onclick="deleteVideo(${p.id})">حذف</button>`:""
-div.innerHTML=`
-<video src="${p.video}" controls></video>
-<p>${p.desc}</p>
-${del}`
-posts.appendChild(div)
-})
-})
+ if(!db)return
+ getAllVideos(data=>{
+   posts.innerHTML=""
+   data.forEach(p=>{
+     let div=document.createElement("div")
+     div.className="post"
+     let del=p.user==currentUser?`<button onclick="deleteVideo(${p.id})">حذف</button>`:""
+     div.innerHTML=`
+       <video src="${p.video}" controls></video>
+       <p>${p.desc}</p>
+       ${del}
+       <textarea id="c${p.id}" placeholder="تعليق"></textarea>
+       <button onclick="comment(${p.id})">إرسال</button>
+       <div id="com${p.id}"></div>
+     `
+     posts.appendChild(div)
+     p.comments.forEach((c,i)=>{
+       document.getElementById("com"+p.id).innerHTML+=`
+         <div class="comment">${c} ${p.user==currentUser?`<button onclick="delComment(${p.id},${i})">حذف</button>`:""}</div>`
+     })
+   })
+ })
 }
 
-updateUI()
+// التعليقات
+function comment(id){
+ if(!currentUser)return alert("عذراً، يجب أن تسجل دخولك ❌")
+ let text=document.getElementById("c"+id).value
+ if(!text)return
+ let post
+ getAllVideos(data=>{post=data.find(p=>p.id==id);post.comments.push(text);saveVideoData(post);render()})
+}
+
+function delComment(pid,i){
+ getAllVideos(data=>{
+   let post=data.find(p=>p.id==pid)
+   post.comments.splice(i,1)
+   saveVideoData(post)
+   render()
+ })
+}
 </script>
+
+<style>
+@keyframes shake{
+0%{transform:translateX(0)}
+25%{transform:translateX(-5px)}
+50%{transform:translateX(5px)}
+75%{transform:translateX(-5px)}
+100%{transform:translateX(0)}
+}
+</style>
 
 </body>
 </html>
